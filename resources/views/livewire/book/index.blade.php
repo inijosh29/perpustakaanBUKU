@@ -13,7 +13,7 @@
     @error('author') <span style="color:red;">{{ $message }}</span> @enderror
 
     <!-- Debug: cek isi $categories -->
-    <pre>{{ print_r($categories, true) }}</pre>
+    {{-- <pre>{{ print_r($categories, true) }}</pre> --}}
 
     <!-- Kategori -->
     <select wire:model="category"

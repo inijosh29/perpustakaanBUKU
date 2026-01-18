@@ -3,11 +3,16 @@
 namespace App\Livewire\Rental;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\Rental;
 use Illuminate\Support\Facades\Auth;
 
 class Index extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'tailwind';
+
     // Mengembalikan buku
     public function returnBook($rentalId)
     {
@@ -36,15 +41,17 @@ class Index extends Component
 
         session()->flash('success', 'Buku berhasil dikembalikan');
         $this->dispatch('rentalUpdated');
+
+        return redirect()->route('books.list');
     }
 
     public function render()
     {
-        // Ambil rental milik user yang login, paling baru di atas
+        // Ambil rental milik user yang login, paling baru di atas (PAGINATION)
         $rentals = Rental::with('book')
             ->where('user_id', Auth::id())
             ->orderBy('rented_at', 'desc')
-            ->get();
+            ->paginate(6); 
 
         return view('livewire.rental.index', [
             'rentals' => $rentals

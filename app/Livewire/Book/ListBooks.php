@@ -22,7 +22,7 @@ class ListBooks extends Component
     public $stock;
     public $tahun;
 
-    // Filter
+    // Filter (LIVE)
     public $search = '';
     public $filterAbjad = '';
     public $filterTahun = '';
@@ -31,7 +31,27 @@ class ListBooks extends Component
     // Dropdown options
     public $letters = [];
     public $years = [];
-    public $categories = ['Novel','Dongeng','Komik','Sejarah']; // hardcode supaya selalu muncul
+    public $categories = ['Novel','Dongeng','Komik','Sejarah'];
+
+    // Konfirmasi hapus
+    public $confirmingDelete = false;
+    public $deleteBookId = null;
+
+    protected $rules = [
+        'title'    => 'required|string|max:255',
+        'author'   => 'required|string|max:255',
+        'category' => 'required|in:Novel,Dongeng,Komik,Sejarah',
+        'stock'    => 'required|integer|min:0',
+        'tahun'    => 'required|integer|min:1900|max:2099',
+    ];
+
+    protected $messages = [
+        'title.required'    => 'Judul buku wajib diisi',
+        'author.required'   => 'Nama penulis wajib diisi',
+        'category.required' => 'Kategori wajib dipilih',
+        'stock.required'    => 'Stok wajib diisi',
+        'tahun.required'    => 'Tahun terbit wajib diisi',
+    ];
 
     public function mount()
     {
@@ -39,56 +59,58 @@ class ListBooks extends Component
         $this->refreshYears();
     }
 
-    // Toggle form tambah buku
+    public function updated($property)
+    {
+        if (in_array($property, [
+            'search',
+            'filterAbjad',
+            'filterTahun',
+            'categoryFilter',
+        ])) {
+            $this->resetPage();
+        }
+    }
+
     public function toggleForm()
     {
         $this->showForm = !$this->showForm;
     }
 
-    // Create buku baru
     public function createBook()
     {
-        $this->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'category' => 'required|in:' . implode(',', $this->categories),
-            'stock' => 'required|integer|min:0',
-            'tahun' => 'nullable|integer|min:1900|max:2099',
-        ]);
+        // 🔥 VALIDASI WAJIB ISI SEMUA
+        $this->validate();
 
         Book::create([
-            'title' => $this->title,
-            'author' => $this->author,
+            'title'    => $this->title,
+            'author'   => $this->author,
             'category' => $this->category,
-            'stock' => $this->stock,
-            'tahun' => $this->tahun,
+            'stock'    => $this->stock,
+            'tahun'    => $this->tahun,
         ]);
 
-        $this->reset(['title', 'author', 'category', 'stock', 'tahun']);
+        $this->reset(['title','author','category','stock','tahun']);
         $this->showForm = false;
-        $this->refreshYears(); // update dropdown tahun otomatis
+        $this->refreshYears();
 
         session()->flash('success', 'Buku berhasil ditambahkan');
     }
 
-    // Refresh dropdown tahun
     public function refreshYears()
     {
-        $this->years = Book::select('tahun')->whereNotNull('tahun')->distinct()->orderBy('tahun','desc')->pluck('tahun')->toArray();
+        $this->years = Book::whereNotNull('tahun')
+            ->distinct()
+            ->orderBy('tahun','desc')
+            ->pluck('tahun')
+            ->toArray();
     }
 
-    // Rent buku
     public function rent($id)
     {
         $book = Book::findOrFail($id);
 
         if ($book->stock < 1) {
             session()->flash('error', 'Buku habis');
-            return;
-        }
-
-        if (!Auth::check()) {
-            session()->flash('error', 'Silakan login dulu');
             return;
         }
 
@@ -103,41 +125,41 @@ class ListBooks extends Component
         $book->decrement('stock');
 
         session()->flash('success', 'Buku berhasil disewa');
-        return redirect()->to('/rentals');
+        return redirect()->route('rentals');
     }
 
-    // Delete buku
-    public function deleteBook($id)
+    public function confirmDelete($id)
     {
-        Rental::where('book_id', $id)->delete();
-        Book::where('id', $id)->delete();
+        $this->deleteBookId = $id;
+        $this->confirmingDelete = true;
+    }
+
+    public function cancelDelete()
+    {
+        $this->confirmingDelete = false;
+        $this->deleteBookId = null;
+    }
+
+    public function deleteBook()
+    {
+        Rental::where('book_id', $this->deleteBookId)->delete();
+        Book::where('id', $this->deleteBookId)->delete();
+
         session()->flash('success', 'Buku berhasil dihapus');
+
+        $this->confirmingDelete = false;
+        $this->deleteBookId = null;
+
         $this->resetPage();
         $this->refreshYears();
     }
-
-    // Reset filter
-    public function resetFilter()
-    {
-        $this->filterAbjad = '';
-        $this->filterTahun = '';
-        $this->categoryFilter = '';
-        $this->search = '';
-        $this->resetPage();
-    }
-
-    // Reset pagination saat filter/search berubah
-    public function updatingSearch() { $this->resetPage(); }
-    public function updatingFilterAbjad() { $this->resetPage(); }
-    public function updatingFilterTahun() { $this->resetPage(); }
-    public function updatingCategoryFilter() { $this->resetPage(); }
 
     public function render()
     {
         $query = Book::query();
 
         if ($this->filterAbjad) {
-            $query->where('title', 'LIKE', $this->filterAbjad . '%');
+            $query->where('title', 'LIKE', $this->filterAbjad.'%');
         }
 
         if ($this->filterTahun) {
@@ -149,19 +171,14 @@ class ListBooks extends Component
         }
 
         if ($this->search) {
-            $query->where(function($q){
-                $q->where('title', 'LIKE', '%' . $this->search . '%')
-                ->orWhere('author', 'LIKE', '%' . $this->search . '%');
+            $query->where(function ($q) {
+                $q->where('title','LIKE','%'.$this->search.'%')
+                    ->orWhere('author','LIKE','%'.$this->search.'%');
             });
         }
 
-        $books = $query->orderBy('id','desc')->paginate(10);
-
         return view('livewire.book.list-books', [
-            'books' => $books,
-            'letters' => $this->letters,
-            'years' => $this->years,
-            'categories' => $this->categories,
+            'books' => $query->orderBy('id','desc')->paginate(10),
         ]);
     }
 }
