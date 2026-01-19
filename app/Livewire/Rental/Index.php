@@ -42,7 +42,7 @@ class Index extends Component
         session()->flash('success', 'Buku berhasil dikembalikan');
         $this->dispatch('rentalUpdated');
 
-        return redirect()->route('books.list');
+        return redirect()->route('books.index');
     }
 
     public function render()
@@ -51,7 +51,7 @@ class Index extends Component
         $rentals = Rental::with('book')
             ->where('user_id', Auth::id())
             ->orderBy('rented_at', 'desc')
-            ->paginate(6); 
+            ->paginate(6);
 
         return view('livewire.rental.index', [
             'rentals' => $rentals

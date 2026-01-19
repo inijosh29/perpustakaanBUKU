@@ -37,7 +37,7 @@
                             required
                             autofocus
                             autocomplete="email"
-                            placeholder="email@example.com"
+                            placeholder="email@gmail.com"
                             class="
                                 rounded-2xl
                                 bg-zinc-800 text-white
