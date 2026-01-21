@@ -16,7 +16,7 @@ class Index extends Component
     protected $paginationTheme = 'tailwind';
 
     public $showForm = false;
-
+    public $previewImage = null;
     public $title;
     public $author;
     public $category;
@@ -36,18 +36,24 @@ class Index extends Component
     public $letters = [];
     public $years = [];
 
-    /* ========================= */
+    public function showImage($image)
+{
+    $this->previewImage = $image;
+}
+
+public function closeImage()
+{
+    $this->previewImage = null;
+}
+
     /* INIT */
-    /* ========================= */
     public function mount()
     {
         $this->letters = range('A', 'Z');
         $this->refreshYearsAndLetters();
     }
 
-    /* ========================= */
     /* AUTO RESET PAGINATION */
-    /* ========================= */
     public function updated($property)
     {
         if (in_array($property, [
@@ -60,17 +66,13 @@ class Index extends Component
         }
     }
 
-    /* ========================= */
     /* TOGGLE FORM */
-    /* ========================= */
     public function toggleForm()
     {
         $this->showForm = ! $this->showForm;
     }
 
-    /* ========================= */
     /* CREATE BOOK */
-    /* ========================= */
     public function createBook()
     {
         $this->validate([
@@ -79,10 +81,10 @@ class Index extends Component
             'category' => 'required|in:' . implode(',', $this->categories),
             'stock'    => 'required|integer|min:0',
             'tahun'    => 'required|digits:4',
-            'image'    => 'required|image|max:2048', // ✅ WAJIB
+            'image'    => 'required|image|mimes:jpg,jpeg,png|max:5120|dimensions:min_width=600,min_height=800',
         ]);
 
-        $path = $this->image->store('books', 'public'); // ✅ TIDAK NULL
+        $path = $this->image->store('books', 'public');
 
         Book::create([
             'title'    => $this->title,
@@ -101,9 +103,7 @@ class Index extends Component
         session()->flash('success', 'Buku berhasil ditambahkan');
     }
 
-    /* ========================= */
     /* RENT BOOK */
-    /* ========================= */
     public function rentBook($id)
     {
         $book = Book::findOrFail($id);
@@ -124,9 +124,7 @@ class Index extends Component
             ->with('success', 'Buku berhasil disewa');
     }
 
-    /* ========================= */
     /* DELETE BOOK */
-    /* ========================= */
     public function confirmDelete($id)
     {
         $this->confirmDeleteId = $id;
@@ -142,26 +140,23 @@ class Index extends Component
         session()->flash('success', 'Buku berhasil dihapus');
     }
 
-    /* ========================= */
     /* REFRESH FILTER DATA */
-    /* ========================= */
     public function refreshYearsAndLetters()
     {
-        $this->years = Book::pluck('tahun')
-            ->unique()
-            ->sortDesc()
-            ->values()
+        // Ambil semua tahun unik dari database dan urut dari besar ke kecil
+        $this->years = Book::select('tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun')
             ->toArray();
     }
 
-    /* ========================= */
     /* RENDER + FILTER */
-    /* ========================= */
     public function render()
     {
         $query = Book::query();
 
-        // 🔍 SEARCH
+        // SEARCH
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('title', 'like', "%{$this->search}%")
@@ -169,17 +164,17 @@ class Index extends Component
             });
         }
 
-        // 🔤 ABJAD
+        // ABJAD
         if ($this->filterAbjad) {
             $query->where('title', 'like', "{$this->filterAbjad}%");
         }
 
-        // 📅 TAHUN
+        // TAHUN
         if ($this->filterTahun) {
             $query->where('tahun', $this->filterTahun);
         }
 
-        // 🗂️ KATEGORI
+        // KATEGORI
         if ($this->categoryFilter) {
             $query->where('category', $this->categoryFilter);
         }

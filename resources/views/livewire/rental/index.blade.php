@@ -1,8 +1,33 @@
 <div style="max-width:1100px;margin:auto;padding:25px;color:black;">
 
-    <h1 style="font-size:28px;font-weight:800;margin-bottom:25px;">
-        Daftar Rental
-    </h1>
+    <h1 style="
+    font-size:64px;
+    font-weight:900;
+    margin-bottom:64px;
+    text-align:center;
+    letter-spacing:1px;
+    background:linear-gradient(90deg,#000000,#22c55e);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow:0 6px 18px rgba(22,163,74,.25);
+    position:relative;
+    font-family:'Times New Roman', Times, serif
+">
+    Daftar Rental
+
+    <span style="
+        position:absolute;
+        left:50%;
+        bottom:-12px;
+        transform:translateX(-50%);
+        width:90px;
+        height:4px;
+        background:linear-gradient(90deg,#16a34a,#22c55e);
+        border-radius:999px;
+        box-shadow:0 6px 16px rgba(22,163,74,.4);
+        display:block;
+    "></span>
+</h1>
 
     {{-- Flash Messages --}}
     @if(session()->has('success'))
@@ -117,10 +142,22 @@
         </div>
     @endif
 
-    {{-- PAGINATION --}}
+    {{-- PAGINATION + Showing Info --}}
     @if ($rentals->hasPages())
-        <div style="margin-top:30px;display:flex;justify-content:center;">
-            {{ $rentals->links() }}
+        <div style="margin-top:30px; display:flex; justify-content:space-between; align-items:center; gap:60px;">
+
+            {{-- Showing Info --}}
+            <div style="color:#6b7280; font-size:14px;">
+                Menampilkan
+                <b>{{ $rentals->firstItem() }}</b> hingga
+                <b>{{ $rentals->lastItem() }}</b> dari
+                <b>{{ $rentals->total() }}</b> data
+            </div>
+
+            {{-- Pagination Links --}}
+            <div>
+                {{ $rentals->links() }}
+            </div>
         </div>
     @endif
 
