@@ -17,6 +17,7 @@ class Index extends Component
 
     public $showForm = false;
     public $previewImage = null;
+
     public $title;
     public $author;
     public $category;
@@ -36,24 +37,25 @@ class Index extends Component
     public $letters = [];
     public $years = [];
 
+    /* ================= IMAGE PREVIEW ================= */
     public function showImage($image)
-{
-    $this->previewImage = $image;
-}
+    {
+        $this->previewImage = $image;
+    }
 
-public function closeImage()
-{
-    $this->previewImage = null;
-}
+    public function closeImage()
+    {
+        $this->previewImage = null;
+    }
 
-    /* INIT */
+    /* ================= INIT ================= */
     public function mount()
     {
         $this->letters = range('A', 'Z');
         $this->refreshYearsAndLetters();
     }
 
-    /* AUTO RESET PAGINATION */
+    /* ================= RESET PAGINATION ================= */
     public function updated($property)
     {
         if (in_array($property, [
@@ -66,13 +68,13 @@ public function closeImage()
         }
     }
 
-    /* TOGGLE FORM */
+    /* ================= TOGGLE FORM ================= */
     public function toggleForm()
     {
         $this->showForm = ! $this->showForm;
     }
 
-    /* CREATE BOOK */
+    /* ================= CREATE BOOK ================= */
     public function createBook()
     {
         $this->validate([
@@ -99,11 +101,12 @@ public function closeImage()
         $this->showForm = false;
 
         $this->refreshYearsAndLetters();
+        $this->resetPage();
 
         session()->flash('success', 'Buku berhasil ditambahkan');
     }
 
-    /* RENT BOOK */
+    /* ================= RENT BOOK ================= */
     public function rentBook($id)
     {
         $book = Book::findOrFail($id);
@@ -124,7 +127,7 @@ public function closeImage()
             ->with('success', 'Buku berhasil disewa');
     }
 
-    /* DELETE BOOK */
+    /* ================= DELETE ================= */
     public function confirmDelete($id)
     {
         $this->confirmDeleteId = $id;
@@ -132,18 +135,21 @@ public function closeImage()
 
     public function deleteBook()
     {
+        if (! $this->confirmDeleteId) return;
+
         Book::findOrFail($this->confirmDeleteId)->delete();
+
         $this->confirmDeleteId = null;
 
         $this->refreshYearsAndLetters();
+        $this->resetPage();
 
         session()->flash('success', 'Buku berhasil dihapus');
     }
 
-    /* REFRESH FILTER DATA */
+    /* ================= FILTER DATA ================= */
     public function refreshYearsAndLetters()
     {
-        // Ambil semua tahun unik dari database dan urut dari besar ke kecil
         $this->years = Book::select('tahun')
             ->distinct()
             ->orderByDesc('tahun')
@@ -151,12 +157,11 @@ public function closeImage()
             ->toArray();
     }
 
-    /* RENDER + FILTER */
+    /* ================= RENDER ================= */
     public function render()
     {
         $query = Book::query();
 
-        // SEARCH
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('title', 'like', "%{$this->search}%")
@@ -164,17 +169,14 @@ public function closeImage()
             });
         }
 
-        // ABJAD
         if ($this->filterAbjad) {
             $query->where('title', 'like', "{$this->filterAbjad}%");
         }
 
-        // TAHUN
         if ($this->filterTahun) {
             $query->where('tahun', $this->filterTahun);
         }
 
-        // KATEGORI
         if ($this->categoryFilter) {
             $query->where('category', $this->categoryFilter);
         }
