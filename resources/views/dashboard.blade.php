@@ -44,7 +44,7 @@
 
         <p>paman</p>
         <p>wanita</p>
-        <p>henry</p>
+        <p>iwan</p>
 
     </div>
 </x-layouts.app>
