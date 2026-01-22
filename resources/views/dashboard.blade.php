@@ -43,6 +43,7 @@
         </footer>
         
         <p>paman</p>
+        <p>wanita</p>
 
     </div>
 </x-layouts.app>
