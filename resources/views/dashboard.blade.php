@@ -41,6 +41,8 @@
             <p>© {{ date('Y') }}  All rights reserved.</p>
             <p></p>
         </footer>
+        
+        <p>paman</p>
 
     </div>
 </x-layouts.app>
