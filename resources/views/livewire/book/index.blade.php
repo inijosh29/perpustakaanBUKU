@@ -250,7 +250,7 @@
                         style="flex:1;background:#dc2626;color:white;
                         padding:10px;border-radius:10px;
                         cursor:pointer;transition:.25s;"
-                        onmouseover="this.style.background='#b91c1c'"
+                        onmouseover="this.style.background='#b91c1c'"x  
                         onmouseout="this.style.background='#dc2626'">
                         Ya, Hapus
                     </button>
