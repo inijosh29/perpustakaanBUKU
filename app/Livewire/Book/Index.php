@@ -3,32 +3,19 @@
 namespace App\Livewire\Book;
 
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Models\Book;
 use App\Models\Rental;
 use Illuminate\Support\Facades\Auth;
 
 class Index extends Component
 {
-    use WithFileUploads, WithPagination;
+    use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'tailwind';
 
-    public $showForm = false;
-    public $previewImage = null;
-
-    public $title;
-    public $author;
-    public $category;
-    public $stock;
-    public $tahun;
-    public $image;
-
-    public $confirmDeleteId = null;
-
-    public $categories = ['Novel','Dongeng','Komik','Sejarah'];
-
+    /* ================= STATE ================= */
     public $search;
     public $filterAbjad;
     public $filterTahun;
@@ -36,125 +23,213 @@ class Index extends Component
 
     public $letters = [];
     public $years = [];
+    public $categories = ['Novel', 'Dongeng', 'Komik', 'Sejarah'];
 
-    /* ================= IMAGE PREVIEW ================= */
-    public function showImage($image)
-    {
-        $this->previewImage = $image;
-    }
+    /* ================= ADMIN FORM ================= */
+    public $showForm = false;
+    public $title;
+    public $author;
+    public $category;
+    public $stock;
+    public $tahun;
+    public $sinopsis;
+    public $image;
 
-    public function closeImage()
-    {
-        $this->previewImage = null;
-    }
+    /* ================= RENT FORM ================= */
+    public $showRentForm = false;
+    public $rentBookId;
+    public $nama;
+    public $tempat_lahir;
+    public $tanggal_lahir;
+    public $alamat;
+    public $whatsapp;
 
-    /* ================= INIT ================= */
+    /* ================= COMMENTS ================= */
+    public $showComments = [];
+    public $commentText = [];
+    public $commentRating = [];
+
+    /* ================= DELETE ================= */
+    public $confirmDeleteId;
+
+    /* ================= PREVIEW ================= */
+    public $previewImage;
+    public $previewSinopsis;
+
     public function mount()
     {
         $this->letters = range('A', 'Z');
-        $this->refreshYearsAndLetters();
-    }
-
-    /* ================= RESET PAGINATION ================= */
-    public function updated($property)
-    {
-        if (in_array($property, [
-            'search',
-            'filterAbjad',
-            'filterTahun',
-            'categoryFilter'
-        ])) {
-            $this->resetPage();
-        }
-    }
-
-    /* ================= TOGGLE FORM ================= */
-    public function toggleForm()
-    {
-        $this->showForm = ! $this->showForm;
-    }
-
-    /* ================= CREATE BOOK ================= */
-    public function createBook()
-    {
-        $this->validate([
-            'title'    => 'required|string|max:255',
-            'author'   => 'required|string|max:255',
-            'category' => 'required|in:' . implode(',', $this->categories),
-            'stock'    => 'required|integer|min:0',
-            'tahun'    => 'required|digits:4',
-            'image'    => 'required|image|mimes:jpg,jpeg,png|max:5120|dimensions:min_width=600,min_height=800',
-        ]);
-
-        $path = $this->image->store('books', 'public');
-
-        Book::create([
-            'title'    => $this->title,
-            'author'   => $this->author,
-            'category' => $this->category,
-            'stock'    => $this->stock,
-            'tahun'    => $this->tahun,
-            'image'    => $path,
-        ]);
-
-        $this->reset(['title','author','category','stock','tahun','image']);
-        $this->showForm = false;
-
-        $this->refreshYearsAndLetters();
-        $this->resetPage();
-
-        session()->flash('success', 'Buku berhasil ditambahkan');
-    }
-
-    /* ================= RENT BOOK ================= */
-    public function rentBook($id)
-    {
-        $book = Book::findOrFail($id);
-
-        if ($book->stock <= 0) return;
-
-        Rental::create([
-            'user_id'   => Auth::id(),
-            'book_id'   => $book->id,
-            'rented_at' => now(),
-            'status'    => 'rented',
-        ]);
-
-        $book->decrement('stock');
-
-        return redirect()
-            ->route('rentals')
-            ->with('success', 'Buku berhasil disewa');
-    }
-
-    /* ================= DELETE ================= */
-    public function confirmDelete($id)
-    {
-        $this->confirmDeleteId = $id;
-    }
-
-    public function deleteBook()
-    {
-        if (! $this->confirmDeleteId) return;
-
-        Book::findOrFail($this->confirmDeleteId)->delete();
-
-        $this->confirmDeleteId = null;
-
-        $this->refreshYearsAndLetters();
-        $this->resetPage();
-
-        session()->flash('success', 'Buku berhasil dihapus');
-    }
-
-    /* ================= FILTER DATA ================= */
-    public function refreshYearsAndLetters()
-    {
         $this->years = Book::select('tahun')
             ->distinct()
             ->orderByDesc('tahun')
             ->pluck('tahun')
             ->toArray();
+    }
+
+    /* ================= ADMIN FORM ================= */
+    public function toggleForm()
+    {
+        $this->showForm = !$this->showForm;
+    }
+
+    public function createBook()
+    {
+        $this->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'category' => 'required|string',
+            'stock' => 'required|integer|min:0',
+            'tahun' => 'required|integer',
+            'sinopsis' => 'nullable|string|max:200',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $path = $this->image
+            ? $this->image->store('books', 'public')
+            : null;
+
+        Book::create([
+            'title' => $this->title,
+            'author' => $this->author,
+            'category' => $this->category,
+            'stock' => $this->stock,
+            'tahun' => $this->tahun,
+            'sinopsis' => $this->sinopsis,
+            'image' => $path,
+        ]);
+
+        session()->flash('success', 'Buku berhasil ditambahkan');
+
+        $this->reset([
+            'title',
+            'author',
+            'category',
+            'stock',
+            'tahun',
+            'sinopsis',
+            'image',
+            'showForm'
+        ]);
+    }
+
+    /* ================= RENT FLOW ================= */
+    public function openRentForm($bookId)
+    {
+        if (!Auth::check()) return;
+
+        $book = Book::findOrFail($bookId);
+        if ($book->stock <= 0) return;
+
+        $this->rentBookId = $bookId;
+        $this->showRentForm = true;
+    }
+
+    public function closeRentForm()
+    {
+        $this->reset([
+            'showRentForm',
+            'rentBookId',
+            'nama',
+            'tempat_lahir',
+            'tanggal_lahir',
+            'alamat',
+            'whatsapp'
+        ]);
+    }
+
+    public function submitRent()
+    {
+        $this->validate([
+            'nama' => 'required|string|max:100',
+            'tempat_lahir' => 'required|string|max:100',
+            'tanggal_lahir' => 'required|date',
+            'alamat' => 'required|string|max:255',
+            'whatsapp' => 'required|string',
+        ]);
+
+        $book = Book::findOrFail($this->rentBookId);
+
+        Rental::create([
+            'user_id' => Auth::id(),
+            'book_id' => $book->id,
+            'nama' => $this->nama,
+            'tempat_lahir' => $this->tempat_lahir,
+            'tanggal_lahir' => $this->tanggal_lahir,
+            'alamat' => $this->alamat,
+            'rented_at' => now(),
+            'status' => 'pending',
+        ]);
+
+        $book->decrement('stock');
+
+        session()->flash('success', 'Permintaan sewa berhasil dikirim');
+
+        $this->closeRentForm();
+    }
+
+    /* ================= COMMENTS ================= */
+    public function toggleComments($bookId)
+    {
+        $this->showComments[$bookId] =
+            !($this->showComments[$bookId] ?? false);
+    }
+
+    public function submitComment($bookId)
+    {
+        $book = Book::findOrFail($bookId);
+
+        $this->validate([
+            "commentText.$bookId" => 'required|string|max:255',
+            "commentRating.$bookId" => 'nullable|integer|min:1|max:5',
+        ]);
+
+        $book->comments()->create([
+            'user_id' => Auth::id(),
+            'comment' => $this->commentText[$bookId],
+            'rating' => $this->commentRating[$bookId] ?? null,
+        ]);
+
+        $this->reset([
+            "commentText.$bookId",
+            "commentRating.$bookId"
+        ]);
+    }
+
+    public function deleteComment($commentId)
+    {
+        \App\Models\Comment::find($commentId)?->delete();
+    }
+
+    /* ================= DELETE BOOK ================= */
+    public function confirmDelete($bookId)
+    {
+        $this->confirmDeleteId = $bookId;
+    }
+
+    public function cancelDelete()
+    {
+        $this->confirmDeleteId = null;
+    }
+
+    public function deleteBook()
+    {
+        Book::find($this->confirmDeleteId)?->delete();
+        $this->confirmDeleteId = null;
+
+        session()->flash('success', 'Buku berhasil dihapus');
+    }
+
+    /* ================= PREVIEW ================= */
+    public function showImage($image, $sinopsis)
+    {
+        $this->previewImage = $image;
+        $this->previewSinopsis = $sinopsis;
+    }
+
+    public function closeImage()
+    {
+        $this->previewImage = null;
+        $this->previewSinopsis = null;
     }
 
     /* ================= RENDER ================= */
@@ -163,10 +238,10 @@ class Index extends Component
         $query = Book::query();
 
         if ($this->search) {
-            $query->where(function ($q) {
+            $query->where(fn ($q) =>
                 $q->where('title', 'like', "%{$this->search}%")
-                  ->orWhere('author', 'like', "%{$this->search}%");
-            });
+                  ->orWhere('author', 'like', "%{$this->search}%")
+            );
         }
 
         if ($this->filterAbjad) {
