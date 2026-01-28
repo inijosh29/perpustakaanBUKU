@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('books', function (Blueprint $table) {
-            $table->string('image')->nullable()->after('tahun'); // kolom baru setelah kategori
+            $table->string('image')->nullable();
         });
     }
 
@@ -20,3 +20,4 @@ return new class extends Migration
         });
     }
 };
+
