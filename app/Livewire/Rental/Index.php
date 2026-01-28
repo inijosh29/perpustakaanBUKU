@@ -13,48 +13,41 @@ class Index extends Component
 
     protected $paginationTheme = 'tailwind';
 
-    // Mengembalikan buku
     public function returnBook($rentalId)
     {
-        $rental = Rental::findOrFail($rentalId);
+        $rental = Rental::with('book')->findOrFail($rentalId);
 
-        // Pastikan rental milik user
+        // keamanan
         if ($rental->user_id !== Auth::id()) {
             session()->flash('error', 'Akses ditolak');
             return;
         }
 
-        // Hanya bisa mengembalikan buku yang belum dikembalikan
-        if ($rental->status === 'returned') {
-            session()->flash('error', 'Buku sudah dikembalikan');
+        // ✅ hanya boleh kembalikan jika SUDAH DISETUJUI
+        if ($rental->status !== 'approved') {
+            session()->flash('error', 'Buku tidak bisa dikembalikan');
             return;
         }
 
-        // Update status rental & tanggal kembali
-        $rental->update([
-            'returned_at' => now(),
-            'status' => 'returned',
-        ]);
-
-        // Tambahkan stock buku kembali
+        // ✅ kembalikan stock buku
         $rental->book->increment('stock');
 
-        session()->flash('success', 'Buku berhasil dikembalikan');
-        $this->dispatch('rentalUpdated');
+        // update rental
+        $rental->update([
+            'status' => 'returned',
+            'returned_at' => now(),
+        ]);
 
-        return redirect()->route('books.index');
+        session()->flash('success', 'Buku berhasil dikembalikan');
     }
 
     public function render()
     {
-        // Ambil rental milik user yang login, paling baru di atas (PAGINATION)
-        $rentals = Rental::with('book')
+        $rentals = Rental::with(['book', 'user'])
             ->where('user_id', Auth::id())
-            ->orderBy('rented_at', 'desc')
+            ->orderByDesc('rented_at')
             ->paginate(6);
 
-        return view('livewire.rental.index', [
-            'rentals' => $rentals
-        ]);
+        return view('livewire.rental.index', compact('rentals'));
     }
 }

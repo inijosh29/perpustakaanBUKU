@@ -42,7 +42,6 @@ class Index extends Component
     public $tempat_lahir;
     public $tanggal_lahir;
     public $alamat;
-    public $whatsapp;
 
     /* ================= COMMENTS ================= */
     public $showComments = [];
@@ -59,6 +58,7 @@ class Index extends Component
     public function mount()
     {
         $this->letters = range('A', 'Z');
+
         $this->years = Book::select('tahun')
             ->distinct()
             ->orderByDesc('tahun')
@@ -66,7 +66,7 @@ class Index extends Component
             ->toArray();
     }
 
-    /* ================= ADMIN FORM ================= */
+    /* ================= ADMIN ================= */
     public function toggleForm()
     {
         $this->showForm = !$this->showForm;
@@ -108,17 +108,22 @@ class Index extends Component
             'tahun',
             'sinopsis',
             'image',
-            'showForm'
+            'showForm',
         ]);
     }
 
-    /* ================= RENT FLOW ================= */
+    /* ================= RENT ================= */
     public function openRentForm($bookId)
     {
         if (!Auth::check()) return;
 
         $book = Book::findOrFail($bookId);
-        if ($book->stock <= 0) return;
+
+        // ✅ FIX: pakai stock asli (sinkron approve & return)
+        if ($book->stock <= 0) {
+            session()->flash('error', 'Stok buku sudah habis');
+            return;
+        }
 
         $this->rentBookId = $bookId;
         $this->showRentForm = true;
@@ -133,7 +138,6 @@ class Index extends Component
             'tempat_lahir',
             'tanggal_lahir',
             'alamat',
-            'whatsapp'
         ]);
     }
 
@@ -144,10 +148,16 @@ class Index extends Component
             'tempat_lahir' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string|max:255',
-            'whatsapp' => 'required|string',
         ]);
 
         $book = Book::findOrFail($this->rentBookId);
+
+        //  FIX: pakai stock asli
+        if ($book->available_stock <= 0) {
+            session()->flash('error', 'Buku sedang dipinjam / diproses');
+            return;
+        }
+
 
         Rental::create([
             'user_id' => Auth::id(),
@@ -160,9 +170,10 @@ class Index extends Component
             'status' => 'pending',
         ]);
 
-        $book->decrement('stock');
-
-        session()->flash('success', 'Permintaan sewa berhasil dikirim');
+        session()->flash(
+            'success',
+            'Permintaan rental berhasil dikirim dan menunggu persetujuan admin'
+        );
 
         $this->closeRentForm();
     }
@@ -170,8 +181,7 @@ class Index extends Component
     /* ================= COMMENTS ================= */
     public function toggleComments($bookId)
     {
-        $this->showComments[$bookId] =
-            !($this->showComments[$bookId] ?? false);
+        $this->showComments[$bookId] = !($this->showComments[$bookId] ?? false);
     }
 
     public function submitComment($bookId)
@@ -189,10 +199,10 @@ class Index extends Component
             'rating' => $this->commentRating[$bookId] ?? null,
         ]);
 
-        $this->reset([
-            "commentText.$bookId",
-            "commentRating.$bookId"
-        ]);
+        unset(
+            $this->commentText[$bookId],
+            $this->commentRating[$bookId]
+        );
     }
 
     public function deleteComment($commentId)
@@ -232,15 +242,15 @@ class Index extends Component
         $this->previewSinopsis = null;
     }
 
-    /* ================= RENDER ================= */
     public function render()
     {
         $query = Book::query();
 
         if ($this->search) {
-            $query->where(fn ($q) =>
+            $query->where(
+                fn($q) =>
                 $q->where('title', 'like', "%{$this->search}%")
-                  ->orWhere('author', 'like', "%{$this->search}%")
+                    ->orWhere('author', 'like', "%{$this->search}%")
             );
         }
 

@@ -63,8 +63,9 @@
                 @endif
                 <button type="submit"
                     style="background:#2563eb;color:white;padding:12px 22px;border-radius:10px;cursor:pointer;transition:.25s;"
-                    onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='#2563eb'">Simpan
-                    Buku</button>
+                    onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='#2563eb'">
+                    Simpan Buku
+                </button>
             </form>
         </div>
     @endif
@@ -109,7 +110,7 @@
                 <div style="position:relative;">
                     <img src="{{ asset('storage/' . $book->image) }}"
                         style="width:100%;height:220px;object-fit:cover;border-radius:14px;">
-                    <button wire:click="showImage('{{ $book->image }}','{{ $book->sinopsis }}')"
+                    <button wire:click="showImage('{{ $book->image }}','{{ addslashes($book->sinopsis) }}')"
                         style="position:absolute;bottom:8px;right:8px;font-size:20px;color:#000;background:transparent;border:none;cursor:pointer;transition:transform .2s, color .2s;"
                         onmouseover="this.style.transform='scale(1.2)'; this.style.color='#2563eb';"
                         onmouseout="this.style.transform='scale(1)'; this.style.color='#000';">
@@ -117,22 +118,31 @@
                     </button>
                 </div>
 
-                <b>{{ $book->title }}</b><br>{{ $book->author }}<br>{{ $book->category }} | {{ $book->tahun }}
-                <div style="margin:10px 0;font-weight:bold;color:{{ $book->stock > 0 ? '#16a34a' : '#dc2626' }}">Stock: {{ $book->stock }}</div>
+                <b>{{ $book->title }}</b><br>
+                {{ $book->author }}<br>
+                {{ $book->category }} | {{ $book->tahun }}
 
-                {{-- BUTTON RENT --}}
+                <div style="margin:10px 0;font-weight:bold;color:{{ $book->stock > 0 ? '#16a34a' : '#dc2626' }}">
+                    Stock: {{ $book->stock }}
+                </div>
+
+                {{-- RENT --}}
                 <button wire:click="openRentForm({{ $book->id }})"
                     style="width:100%;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;background:#16a34a;color:white;margin-bottom:6px;transition: background .25s;"
-                    onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">Rent</button>
+                    onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
+                    Rent
+                </button>
 
-                {{-- BUTTON HAPUS --}}
+                {{-- HAPUS ADMIN --}}
                 @if (auth()->user()?->isAdmin())
                     <button wire:click="confirmDelete({{ $book->id }})"
                         style="width:100%;padding:8px;border-radius:8px;background:#dc2626;color:white;cursor:pointer;margin-bottom:4px;transition: background .25s;"
-                        onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">Hapus Buku</button>
+                        onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                        Hapus Buku
+                    </button>
                 @endif
 
-                {{-- ICON KOMENTAR --}}
+                {{-- TOGGLE KOMENTAR --}}
                 <button wire:click="toggleComments({{ $book->id }})"
                     style="font-size:20px;color:#000;background:transparent;border:none;cursor:pointer;transition:transform .2s, color .2s;"
                     onmouseover="this.style.transform='scale(1.2)'; this.style.color='#2563eb';"
@@ -144,7 +154,9 @@
                 @if ($showComments[$book->id] ?? false)
                     <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb;font-size:13px;">
                         @php $avg = round($book->comments()->avg('rating'), 1); @endphp
-                        <div style="margin-bottom:6px;"><b>Rating:</b> {{ $avg ?: 'Belum ada' }} ⭐</div>
+                        <div style="margin-bottom:6px;">
+                            <b>Rating:</b> {{ $avg ?: 'Belum ada' }} ⭐
+                        </div>
 
                         @foreach ($book->comments as $c)
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -157,9 +169,7 @@
                                 </div>
                                 @if (auth()->id() === $c->user_id)
                                     <button wire:click="deleteComment({{ $c->id }})"
-                                        style="background:transparent;border:none;color:#dc2626;cursor:pointer;font-size:16px;transition: color .25s;"
-                                        onmouseover="this.style.color='#b91c1c';"
-                                        onmouseout="this.style.color='#dc2626';">
+                                        style="background:transparent;border:none;color:#dc2626;cursor:pointer;font-size:16px;">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 @endif
@@ -179,14 +189,13 @@
                                     @endfor
                                 </select>
                                 <button wire:click="submitComment({{ $book->id }})"
-                                    style="margin-top:6px;width:100%;padding:8px;border-radius:8px;background:#2563eb;color:white;cursor:pointer;transition: background .25s;"
-                                    onmouseover="this.style.background='#1e40af'"
-                                    onmouseout="this.style.background='#2563eb'">Kirim</button>
+                                    style="margin-top:6px;width:100%;padding:8px;border-radius:8px;background:#2563eb;color:white;cursor:pointer;">
+                                    Kirim
+                                </button>
                             @endif
                         @endauth
                     </div>
                 @endif
-
             </div>
         @endforeach
     </div>
@@ -197,7 +206,7 @@
             <div style="background:white;padding:20px;border-radius:16px;max-width:400px;width:90%;position:relative;">
                 <button wire:click="closeRentForm"
                     style="position:absolute;top:10px;right:10px;font-size:18px;font-weight:bold;background:#ef4444;color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;">×</button>
-                <h2 style="text-align:center;margin-bottom:14px;">Form Identitas Peminjam</h2>
+                <h2 style="text-align:center;margin-bottom:14px;">Form Permintaan Rental</h2>
                 <form wire:submit.prevent="submitRent">
                     <input wire:model.defer="nama" placeholder="Nama Lengkap"
                         style="width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #d1d5db;">
@@ -207,43 +216,23 @@
                         style="width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #d1d5db;">
                     <textarea wire:model.defer="alamat" placeholder="Alamat"
                         style="width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #d1d5db;height:80px;"></textarea>
-                    <input wire:model.defer="whatsapp" placeholder="Nomor WhatsApp (+628...)"
-                        style="width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #d1d5db;">
                     <button type="submit"
-                        style="width:100%;padding:12px;border-radius:10px;background:#2563eb;color:white;font-weight:600;cursor:pointer;transition:.25s;"
-                        onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='#2563eb'">Kirim & Lanjut
-                        WhatsApp</button>
+                        style="width:100%;padding:12px;border-radius:10px;background:#2563eb;color:white;font-weight:600;cursor:pointer;">
+                        Kirim Permintaan Rental
+                    </button>
                 </form>
             </div>
         </div>
     @endif
 
-    {{-- PREVIEW IMAGE --}}
+    {{-- MODAL PREVIEW GAMBAR --}}
     @if ($previewImage)
-        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999;">
-            <div style="background:white;padding:20px;border-radius:16px;max-width:400px;width:90%;position:relative;">
+        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;">
+            <div style="position:relative;background:white;padding:20px;border-radius:16px;max-width:500px;width:90%;">
                 <button wire:click="closeImage"
                     style="position:absolute;top:10px;right:10px;font-size:18px;font-weight:bold;background:#ef4444;color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;">×</button>
-                <img src="{{ asset('storage/' . $previewImage) }}" style="width:100%;height:auto;border-radius:10px;margin-bottom:10px;">
-                <p>{{ $previewSinopsis }}</p>
-            </div>
-        </div>
-    @endif
-
-    {{-- POPUP KONFIRMASI HAPUS --}}
-    @if ($confirmDeleteId)
-        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;">
-            <div style="background:white;padding:24px;border-radius:16px;max-width:400px;width:90%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25);">
-                <h2 style="margin-bottom:16px;">Hapus Buku</h2>
-                <p style="margin-bottom:24px;">Apakah Anda yakin ingin menghapus buku ini?</p>
-                <div style="display:flex;justify-content:center;gap:12px;">
-                    <button wire:click="deleteBook"
-                        style="padding:10px 20px;background:#dc2626;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition: background .25s;"
-                        onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">Ya, Hapus</button>
-                    <button wire:click="cancelDelete"
-                        style="padding:10px 20px;background:#6b7280;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition: background .25s;"
-                        onmouseover="this.style.background='#4b5563'" onmouseout="this.style.background='#6b7280'">Batal</button>
-                </div>
+                <img src="{{ asset('storage/' . $previewImage) }}" style="width:100%;border-radius:12px;margin-bottom:12px;">
+                <div>{{ $previewSinopsis }}</div>
             </div>
         </div>
     @endif
