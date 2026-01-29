@@ -244,7 +244,7 @@
         </div>
     @endif
 
-    {{-- MODAL PREVIEW GAMBAR --}}
+    {{-- modal preview gambar --}}
     @if ($previewImage)
         <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;">
             <div style="position:relative;background:white;padding:20px;border-radius:16px;max-width:500px;width:90%;">
