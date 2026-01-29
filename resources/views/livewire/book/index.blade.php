@@ -200,6 +200,25 @@
         @endforeach
     </div>
 
+    {{-- MODAL KONFIRMASI DELETE --}}
+    @if ($confirmDeleteId)
+        <div style="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:2000;">
+            <div style="background:white;padding:20px;border-radius:16px;max-width:360px;width:90%;text-align:center;">
+                <h3 style="margin-bottom:14px;">Yakin hapus buku ini?</h3>
+                <div style="display:flex;gap:10px;justify-content:center;">
+                    <button wire:click="deleteBook"
+                        style="padding:10px 16px;border-radius:10px;background:#dc2626;color:white;cursor:pointer;">
+                        Ya, Hapus
+                    </button>
+                    <button wire:click="cancelDelete"
+                        style="padding:10px 16px;border-radius:10px;background:#9ca3af;color:white;cursor:pointer;">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- MODAL RENT --}}
     @if ($showRentForm)
         <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999;">
@@ -225,7 +244,7 @@
         </div>
     @endif
 
-    {{-- MODAL PREVIEW GAMBAR --}}
+    {{-- modal preview gambar --}}
     @if ($previewImage)
         <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;">
             <div style="position:relative;background:white;padding:20px;border-radius:16px;max-width:500px;width:90%;">
