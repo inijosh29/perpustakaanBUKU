@@ -19,7 +19,7 @@ use App\Livewire\Admin\RentalApproval;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
 })->name('home');
 
 /*
