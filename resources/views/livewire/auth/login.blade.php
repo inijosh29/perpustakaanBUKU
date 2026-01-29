@@ -71,6 +71,7 @@
                             "
                         />
 
+                        {{-- password --}}
                         @if (Route::has('password.request'))
                             <flux:link
                                 class="absolute top-0 end-0 text-sm
