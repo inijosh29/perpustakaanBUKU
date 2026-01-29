@@ -11,58 +11,62 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700">
+<body class="min-h-screen bg-white font-sans">
 
-    <!-- NAVBAR -->
-    <header class="w-full absolute top-0 right-0 p-6 flex justify-end z-50">
-        @if (Route::has('login'))
-            <nav class="flex items-center gap-4">
-                @auth
-                    <a href="{{ url('/dashboard') }}"
-                        class="px-5 py-2 border border-blue-700 text-blue-700 rounded-lg font-semibold
-                        transition duration-300 ease-in-out transform
-                        hover:bg-blue-50 hover:text-blue-800
-                        active:bg-blue-100 active:text-blue-900">
-                        Dashboard
-                    </a>
-                @else
+    <!-- SPLIT SECTION -->
+    <div class="flex min-h-screen flex-col md:flex-row">
+
+        <!-- LEFT: TEXT -->
+        <div class="flex w-full md:w-1/2 items-center justify-center px-10">
+            <div class="max-w-md space-y-6">
+                <h1 class="text-4xl font-extrabold tracking-tight text-emerald-700">
+                    Perpustakaan App
+                </h1>
+
+                <p class="leading-relaxed text-gray-600">
+                    Kelola dan jelajahi koleksi buku dengan mudah 
+                    dalam satu platform perpustakaan digital.
+                    <span class="font-semibold text-emerald-600"></span> 
+                    <span class="font-semibold text-emerald-600"></span>
+                </p>
+
+                <div class="flex gap-4 pt-4">
                     <a href="{{ route('login') }}"
-                        class="px-5 py-2 border border-blue-700 text-blue-700 rounded-lg font-semibold
-                        transition duration-300 ease-in-out transform
-                        hover:bg-blue-50 hover:text-blue-800
-                        active:bg-blue-100 active:text-blue-900">
-                        Log in
+                       class="rounded-xl bg-emerald-600 px-6 py-3
+                              font-semibold text-white shadow-lg
+                              transition-all duration-300
+                              hover:-translate-y-0.5 hover:bg-emerald-700">
+                        Mulai Sekarang
                     </a>
 
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}"
-                            class="px-5 py-2 border border-blue-700 text-blue-700 rounded-lg font-semibold
-                            transition duration-300 ease-in-out transform
-                            hover:bg-blue-50 hover:text-blue-800
-                            active:bg-blue-100 active:text-blue-900">
-                            Register
-                        </a>
-                    @endif
-                @endauth
-            </nav>
-        @endif
-    </header>
-
-    <!-- CONTENT -->
-    <div class="flex items-center justify-center min-h-screen px-4">
-        <div class="bg-gray-50/80 backdrop-blur-md rounded-2xl shadow-2xl p-10 max-w-lg w-full text-center space-y-5">
-            <h1 class="text-4xl font-extrabold text-blue-700">
-                Perpustakaan App
-            </h1>
-
-            <p class="text-gray-700 leading-relaxed">
-                Temukan dan kelola buku dengan mudah menggunakan
-                <span class="font-semibold text-blue-600">Laravel</span> +
-                <span class="font-semibold text-blue-600">Livewire</span>
-            </p>
+                    <a href="{{ route('register') }}"
+                       class="rounded-xl border border-emerald-600 px-6 py-3
+                              font-semibold text-emerald-700
+                              transition-all duration-300
+                              hover:bg-emerald-50">
+                        Daftar
+                    </a>
+                </div>
+            </div>
         </div>
+
+       <!-- MAIN IMAGE -->
+<div
+    class="relative hidden md:block md:w-1/2"
+    style="background-image: url('{{ asset('images/pexels-pixabay-159711.jpg') }}');
+           background-size: cover;
+           background-position: center;">
+
+    <!-- OVERLAY IMAGE -->
+    <div
+        class="absolute inset-0 opacity-30"
+        style="background-image: url('{{ asset('images/pexels-pixabay-159711.jpg') }}');
+               background-size: cover;
+               background-position: center;">
+    </div>
+</div>
+
     </div>
 
 </body>
-
 </html>
