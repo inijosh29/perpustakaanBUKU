@@ -73,7 +73,7 @@
                 class="text-emerald-600 font-semibold hover:underline"
                 wire:navigate
             >
-                Daftarr
+                Daftar
             </flux:link>
         </div>
     </div>
