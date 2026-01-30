@@ -25,7 +25,6 @@
 </div>
 
 
-        </div>
 
         <!-- STAT CARD -->
        <div class="relative -mt-24 grid gap-6 md:grid-cols-3 z-10">
