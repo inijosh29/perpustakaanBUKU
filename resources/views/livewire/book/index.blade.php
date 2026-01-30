@@ -246,13 +246,58 @@
 
     {{-- modal preview gambar --}}
     @if ($previewImage)
-        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;">
-            <div style="position:relative;background:white;padding:20px;border-radius:16px;max-width:500px;width:90%;">
-                <button wire:click="closeImage"
-                    style="position:absolute;top:10px;right:10px;font-size:18px;font-weight:bold;background:#ef4444;color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;">×</button>
-                <img src="{{ asset('storage/' . $previewImage) }}" style="width:100%;border-radius:12px;margin-bottom:12px;">
-                <div>{{ $previewSinopsis }}</div>
+<div style="
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+">
+
+    <div style="position:relative;max-width:900px;width:90%;">
+
+        <button wire:click="closeImage"
+            style="
+                position:absolute;
+                top:-14px;
+                right:-14px;
+                background:#ef4444;
+                color:white;
+                border:none;
+                border-radius:50%;
+                width:32px;
+                height:32px;
+                font-size:18px;
+                cursor:pointer;
+                z-index:10;
+            ">×</button>
+
+        <div style="display:flex;gap:20px;align-items:flex-start;">
+
+            <img src="{{ asset('storage/' . $previewImage) }}"
+                style="
+                    width:300px;
+                    max-height:80vh;
+                    object-fit:contain;
+                    border-radius:14px;
+                    background:white;
+                ">
+
+            <div style="
+                color:white;
+                line-height:1.7;
+                white-space:normal;
+                word-break:break-word;
+                overflow-wrap:anywhere;
+            ">
+                {{ $previewSinopsis }}
             </div>
+
         </div>
-    @endif
+    </div>
+</div>
+@endif
+
 </div>
