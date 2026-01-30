@@ -96,19 +96,31 @@
                 <option value="{{ $cat }}">{{ $cat }}</option>
             @endforeach
         </select>
+        {{-- FILTER RATING --}}
+        <select wire:model.live="filterRating"
+            style="padding:12px;border-radius:10px;border:1px solid #d1d5db;cursor:pointer;">
+            <option value="">Rating</option>
+            @for ($i = 5; $i >= 1; $i--)
+                <option value="{{ $i }}">{{ $i }} ⭐</option>
+            @endfor
+        </select>
     </div>
 
     {{-- LIST BUKU --}}
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;">
         @foreach ($books as $book)
-            <div
-                style="background:white;padding:18px;border-radius:18px;border:1px solid #e5e7eb;box-shadow:0 8px 20px rgba(0,0,0,.15);transition:.25s;cursor:default;"
+            <div style="background:white;padding:18px;border-radius:18px;border:1px solid #e5e7eb;box-shadow:0 8px 20px rgba(0,0,0,.15);transition:.25s;cursor:default;"
                 onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 16px 36px rgba(0,0,0,.25)';"
                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,.15)';">
 
                 {{-- GAMBAR --}}
                 <div style="position:relative;">
-                    <img src="{{ asset('storage/' . $book->image) }}"
+                    @php
+                        $imagePath = $book->image
+                            ? \Illuminate\Support\Facades\Storage::url($book->image)
+                            : 'https://via.placeholder.com/220x300?text=No+Image';
+                    @endphp
+                    <img src="{{ $imagePath }}"
                         style="width:100%;height:220px;object-fit:cover;border-radius:14px;">
                     <button wire:click="showImage('{{ $book->image }}','{{ addslashes($book->sinopsis) }}')"
                         style="position:absolute;bottom:8px;right:8px;font-size:20px;color:#000;background:transparent;border:none;cursor:pointer;transition:transform .2s, color .2s;"
@@ -126,12 +138,30 @@
                     Stock: {{ $book->stock }}
                 </div>
 
+                {{-- RATING RATA-RATA --}}
+                @php
+                    $avg = round($book->comments()->avg('rating'), 1);
+                @endphp
+                <div style="margin-bottom:6px;">
+                    <b>Rating:</b> {{ $avg ?: 'Belum ada' }}
+                    @if($avg)
+                        <span style="color:#facc15;">{{ str_repeat('⭐', round($avg)) }}</span>
+                    @endif
+                </div>
+
                 {{-- RENT --}}
                 <button wire:click="openRentForm({{ $book->id }})"
-                    style="width:100%;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;background:#16a34a;color:white;margin-bottom:6px;transition: background .25s;"
-                    onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
-                    Rent
-                </button>
+                    style="width:100%;padding:10px;border-radius:8px;font-weight:600;
+           background:{{ $book->stock > 0 ? '#16a34a' : '#9ca3af' }};
+           color:white;margin-bottom:6px;transition: background .25s;
+           cursor:{{ $book->stock > 0 ? 'pointer' : 'not-allowed' }};"
+                    onmouseover="if({{ $book->stock }} > 0) this.style.background='#15803d'"
+                    onmouseout="if({{ $book->stock }} > 0) this.style.background='#16a34a'" @if ($book->stock <= 0)
+                    disabled
+        @endif
+        >
+        Rent
+        </button>
 
                 {{-- HAPUS ADMIN --}}
                 @if (auth()->user()?->isAdmin())
@@ -153,7 +183,6 @@
                 {{-- KOMENTAR --}}
                 @if ($showComments[$book->id] ?? false)
                     <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb;font-size:13px;">
-                        @php $avg = round($book->comments()->avg('rating'), 1); @endphp
                         <div style="margin-bottom:6px;">
                             <b>Rating:</b> {{ $avg ?: 'Belum ada' }} ⭐
                         </div>
@@ -202,7 +231,8 @@
 
     {{-- MODAL KONFIRMASI DELETE --}}
     @if ($confirmDeleteId)
-        <div style="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div
+            style="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:2000;">
             <div style="background:white;padding:20px;border-radius:16px;max-width:360px;width:90%;text-align:center;">
                 <h3 style="margin-bottom:14px;">Yakin hapus buku ini?</h3>
                 <div style="display:flex;gap:10px;justify-content:center;">
@@ -221,7 +251,8 @@
 
     {{-- MODAL RENT --}}
     @if ($showRentForm)
-        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999;">
+        <div
+            style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999;">
             <div style="background:white;padding:20px;border-radius:16px;max-width:400px;width:90%;position:relative;">
                 <button wire:click="closeRentForm"
                     style="position:absolute;top:10px;right:10px;font-size:18px;font-weight:bold;background:#ef4444;color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;">×</button>
@@ -244,60 +275,21 @@
         </div>
     @endif
 
-    {{-- modal preview gambar --}}
+    {{-- MODAL PREVIEW GAMBAR --}}
     @if ($previewImage)
-<div style="
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.7);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:1000;
-">
-
-    <div style="position:relative;max-width:900px;width:90%;">
-
-        <button wire:click="closeImage"
-            style="
-                position:absolute;
-                top:-14px;
-                right:-14px;
-                background:#ef4444;
-                color:white;
-                border:none;
-                border-radius:50%;
-                width:32px;
-                height:32px;
-                font-size:18px;
-                cursor:pointer;
-                z-index:10;
-            ">×</button>
-
-        <div style="display:flex;gap:20px;align-items:flex-start;">
-
-            <img src="{{ asset('storage/' . $previewImage) }}"
-                style="
-                    width:300px;
-                    max-height:80vh;
-                    object-fit:contain;
-                    border-radius:14px;
-                    background:white;
-                ">
-
-            <div style="
-                color:white;
-                line-height:1.7;
-                white-space:normal;
-                word-break:break-word;
-                overflow-wrap:anywhere;
-            ">
-                {{ $previewSinopsis }}
+        <div
+            style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;">
+            <div style="position:relative;max-width:900px;width:90%;">
+                <button wire:click="closeImage"
+                    style="position:absolute;top:-14px;right:-14px;background:#ef4444;color:white;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;z-index:10;">×</button>
+                <div style="display:flex;gap:20px;align-items:flex-start;">
+                    <img src="{{ $previewImage ? \Illuminate\Support\Facades\Storage::url($previewImage) : 'https://via.placeholder.com/300x400?text=No+Image' }}"
+                        style="width:300px;max-height:80vh;object-fit:contain;border-radius:14px;background:white;">
+                    <div style="color:white;line-height:1.7;white-space:normal;word-break:break-word;overflow-wrap:anywhere;">
+                        {{ $previewSinopsis }}
+                    </div>
+                </div>
             </div>
-
         </div>
-    </div>
-</div>
-@endif
-
+    @endif
 </div>

@@ -15,15 +15,25 @@
                     </p>
 
                     <p class="text-sm mt-2">
-                        @if ($rental->status === 'rented')
+                        @if ($rental->status === 'approved')
                             <span
                                 class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-semibold text-xs">
                                 Sedang dipinjam
                             </span>
-                        @else
+                        @elseif ($rental->status === 'returned')
                             <span
                                 class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold text-xs">
                                 Sudah dikembalikan
+                            </span>
+                        @elseif ($rental->status === 'pending')
+                            <span
+                                class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-semibold text-xs">
+                                Menunggu persetujuan
+                            </span>
+                        @else
+                            <span
+                                class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-1 rounded-full font-semibold text-xs">
+                                Ditolak
                             </span>
                         @endif
                     </p>
@@ -61,6 +71,3 @@
         </div>
     @endif
 </div>
-
-
-

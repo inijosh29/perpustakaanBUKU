@@ -5,7 +5,21 @@
 </head>
 <body class="min-h-screen bg-white dark:bg-zinc-800">
 
-<flux:sidebar sticky stashable class="border-e border-green-300 bg-green-100 dark:border-gray-700 dark:bg-gray-800">
+<style>
+/* Hilangkan underline & border di sidebar navlist */
+flux\\:navlist .nav-item,
+flux\\:navlist .nav-link {
+    border: none !important;
+    text-decoration: none !important;
+}
+
+flux\\:navlist .nav-item.current .nav-link {
+    background-color: #4ade80 !important; /* warna hijau saat aktif */
+    color: #000 !important;
+}
+</style>
+
+<flux:sidebar sticky stashable class="bg-green-100 dark:bg-gray-800">
     <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
     <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
@@ -13,7 +27,7 @@
     </a>
 
     <!-- MAIN MENU -->
-    <flux:navlist variant="outline">
+    <flux:navlist>
         <flux:navlist.group :heading="__('Platform')" class="grid">
 
             <!-- Dashboard -->
@@ -26,7 +40,7 @@
                 Dashboard
             </flux:navlist.item>
 
-            <!-- Books = Katalog Buku -->
+            <!-- Books -->
             <flux:navlist.item
                 icon="document-text"
                 href="{{ url('/books') }}"
@@ -36,7 +50,7 @@
                 Books
             </flux:navlist.item>
 
-            <!-- Rental Buku = Transaksi -->
+            <!-- Rental Buku -->
             <flux:navlist.item
                 icon="clipboard-document-list"
                 href="{{ url('/rentals') }}"
@@ -46,7 +60,7 @@
                 Rental Buku
             </flux:navlist.item>
 
-            <!-- Approve Rentals = Hanya Admin -->
+            <!-- Approve Rentals -->
             @if(auth()->user()->role === 'admin')
                 <flux:navlist.item
                     icon="check-circle"
@@ -62,14 +76,9 @@
 
     <flux:spacer />
 
-    <!-- Desktop User Menu -->
+    <!-- User Menus tetap sama -->
     <flux:dropdown class="hidden lg:block" position="bottom" align="start">
-        <flux:profile
-            :name="auth()->user()->name"
-            :initials="auth()->user()->initials()"
-            icon:trailing="chevrons-up-down"
-        />
-
+        <flux:profile :name="auth()->user()->name" :initials="auth()->user()->initials()" icon:trailing="chevrons-up-down" />
         <flux:menu class="w-[220px]">
             <flux:menu.radio.group>
                 <div class="p-0 text-sm font-normal">
@@ -79,7 +88,6 @@
                                 {{ auth()->user()->initials() }}
                             </span>
                         </span>
-
                         <div class="grid flex-1 text-start text-sm leading-tight">
                             <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
                             <span class="truncate text-xs">{{ auth()->user()->email }}</span>
@@ -89,15 +97,12 @@
             </flux:menu.radio.group>
 
             <flux:menu.separator />
-
             <flux:menu.radio.group>
                 <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
                     {{ __('Settings') }}
                 </flux:menu.item>
             </flux:menu.radio.group>
-
             <flux:menu.separator />
-
             <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
                 <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
@@ -108,14 +113,11 @@
     </flux:dropdown>
 </flux:sidebar>
 
-<!-- Mobile User Menu -->
 <flux:header class="lg:hidden">
     <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
     <flux:spacer />
-
     <flux:dropdown position="top" align="end">
         <flux:profile :initials="auth()->user()->initials()" icon-trailing="chevron-down" />
-
         <flux:menu>
             <flux:menu.radio.group>
                 <div class="p-0 text-sm font-normal">
@@ -125,7 +127,6 @@
                                 {{ auth()->user()->initials() }}
                             </span>
                         </span>
-
                         <div class="grid flex-1 text-start text-sm leading-tight">
                             <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
                             <span class="truncate text-xs">{{ auth()->user()->email }}</span>
@@ -133,17 +134,13 @@
                     </div>
                 </div>
             </flux:menu.radio.group>
-
             <flux:menu.separator />
-
             <flux:menu.radio.group>
                 <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
                     {{ __('Settings') }}
                 </flux:menu.item>
             </flux:menu.radio.group>
-
             <flux:menu.separator />
-
             <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
                 <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">

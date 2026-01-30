@@ -1,117 +1,90 @@
 <x-layouts.app :title="__('Dashboard')">
-    <div class="flex h-full w-full flex-1 flex-col gap-10 p-6 bg-gray-50">
+    <div class="flex h-full w-full flex-1 flex-col gap-8 p-6 bg-gray-50/50">
 
-        <!-- HEADER -->
-<div
-    class="relative overflow-hidden rounded-2xl px-8 pt-12 pb-36 text-gray-800 shadow-xl
-           bg-cover bg-center bg-no-repeat"
-    style="background-image: url('{{ asset('images/webtile2.jpg') }}');"
->
-<div class="absolute inset-0 bg-black/40"></div>
+        <div class="relative overflow-hidden rounded-3xl shadow-2xl shadow-emerald-900/10">
+            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 hover:scale-105"
+                 style="background-image: url('{{ asset('images/webtile2.jpg') }}');">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-transparent"></div>
 
-            <div class="relative flex flex-col items-center justify-center gap-4 text-center">
-                <h1 class="text-4xl tracking-tight text-white" style ="font family: 'WelcomeFont', sans-serif;">
+            <div class="relative flex flex-col items-center justify-center gap-6 px-8 pt-16 pb-32 text-center">
+                <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-white md:text-5xl" 
+                    style="font-family: 'WelcomeFont', sans-serif; line-height: 1.2;">
                     Temukan dan jelajahi koleksi buku perpustakaan kami
                 </h1>
                 
-
-
-    <a href="{{ route('books.index') }}"
-       class="inline-flex items-center gap-3 rounded-2xl bg-white/80 px-5 py-3 text-base font-semibold text-emerald-700
-              shadow-md backdrop-blur transition-all
-              hover:-translate-y-0.5 hover:bg-white hover:shadow-xl">
-        <span>Lihat daftar buku</span>
-    </a>
-</div>
-
-
-
-        <!-- STAT CARD -->
-       <div class="relative -mt-24 grid gap-6 md:grid-cols-3 z-10">
-
-    <!-- Total Buku -->
-    <div
-        class="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-lg ring-1 ring-gray-100 transition-all hover:-translate-y-1 hover:shadow-xl">
-
-        <!-- Accent -->
-        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-400"></div>
-
-        <p class="text-sm font-medium text-gray-500">
-            Total Koleksi Buku
-        </p>
-
-        <div class="mt-3 flex items-end justify-between">
-            <p class="text-4xl font-bold text-gray-900">
-                {{ \App\Models\Book::count() }}
-            </p>
-
-            <div
-                class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
-                📚
+                <a href="{{ route('books.index') }}"
+                   class="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-700 shadow-lg transition-all hover:bg-emerald-50 hover:px-8">
+                    <span>Lihat daftar buku</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </a>
             </div>
         </div>
-    </div>
 
-    <!-- Dipinjam -->
-    <div
-        class="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-lg ring-1 ring-gray-100 transition-all hover:-translate-y-1 hover:shadow-xl">
+        <div class="relative -mt-20 px-4">
+            <div class="grid gap-6 md:grid-cols-3">
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl shadow-gray-200/50 transition-all hover:-translate-y-2">
+                    <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Koleksi</p>
+                            <p class="mt-1 text-3xl font-black text-gray-800">{{ \App\Models\Book::count() }}</p>
+                        </div>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
+                            📚
+                        </div>
+                    </div>
+                    <p class="mt-4 text-xs text-gray-500 font-medium">Data buku terdaftar</p>
+                </div>
 
-        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-400 to-purple-400"></div>
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl shadow-gray-200/50 transition-all hover:-translate-y-2">
+                    <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-indigo-400 to-purple-500"></div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Sedang Dipinjam</p>
+                            <p class="mt-1 text-3xl font-black text-gray-800">{{ \App\Models\Rental::where('status', 'rented')->count() }}</p>
+                        </div>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
+                            🔄
+                        </div>
+                    </div>
+                    <p class="mt-4 text-xs text-gray-500 font-medium">Sirkulasi aktif hari ini</p>
+                </div>
 
-        <p class="text-sm font-medium text-gray-500">
-            Buku Sedang Dipinjam
-        </p>
-
-        <div class="mt-3 flex items-end justify-between">
-            <p class="text-4xl font-bold text-gray-900">
-                {{ \App\Models\Rental::where('status', 'rented')->count() }}
-            </p>
-
-            <div
-                class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
-                🔄
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-xl shadow-gray-200/50 transition-all hover:-translate-y-2">
+                    <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-orange-400 to-amber-500"></div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Stok Tersedia</p>
+                            <p class="mt-1 text-3xl font-black text-gray-800">{{ \App\Models\Book::sum('stock') }}</p>
+                        </div>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
+                            📦
+                        </div>
+                    </div>
+                    <p class="mt-4 text-xs text-gray-500 font-medium">Item siap dipinjam</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Stock -->
-    <div
-        class="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-lg ring-1 ring-gray-100 transition-all hover:-translate-y-1 hover:shadow-xl">
-
-        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-400 to-orange-400"></div>
-
-        <p class="text-sm font-medium text-gray-500">
-            Stock Tersedia
-        </p>
-
-        <div class="mt-3 flex items-end justify-between">
-            <p class="text-4xl font-bold text-gray-900">
-                {{ \App\Models\Book::sum('stock') }}
-            </p>
-
-            <div
-                class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
-                📦
+        <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-gray-200">
+            <div class="border-b border-gray-50 px-8 py-6">
+                <h2 class="text-xl font-bold text-gray-800" style="font-family: 'WelcomeFont', sans-serif;">
+                    Aktivitas Rental Terbaru
+                </h2>
+                <p class="text-sm text-gray-500">Pantau pergerakan buku masuk dan keluar secara real-time</p>
+            </div>
+            <div class="p-8">
+                <livewire:dashboard.recent-rentals />
             </div>
         </div>
-    </div>
 
-</div>
-
-
-        <!-- AKTIVITAS -->
-        <div class="rounded-2xl bg-white text-slate-800 p-8 shadow-md ring-1 ring-gray-200">
-    <h2 class="mb-8 text-center text-2xl tracking-tight text-black"  style ="font family: 'WelcomeFont', sans-serif;">
-        Aktivitas Rental Terbaru
-    </h2>
-
-    <livewire:dashboard.recent-rentals />
-</div>
-
-
-        <!-- FOOTER -->
-        <footer class="rounded-xl py-4 text-center text-sm text-gray-500 ">
-            © {{ date('Y') }} All rights reserved.
+        <footer class="mt-auto py-6 text-center">
+            <p class="text-sm font-medium text-gray-400">
+                &copy; {{ date('Y') }} <span class="text-emerald-600">Perpustakaan Digital</span>. All rights reserved.
+            </p>
         </footer>
 
     </div>

@@ -29,52 +29,19 @@
         "></span>
     </h1>
 
-    {{-- Flash Success --}}
-   @if(session()->has('success'))
-   wire:ignore
-    <div id="flash-success"
-        style="background:#16a34a;color:white;
-            padding:14px 20px;border-radius:12px;
-            margin-bottom:20px;
-            box-shadow:0 10px 20px rgba(0,0,0,.15);
-            transition:opacity .4s ease, transform .4s ease;">
-        {{ session('success') }}
-    </div>
-
-    <script>
-        setTimeout(() => {
-            const el = document.getElementById('flash-success');
-            if (el) {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(-8px)';
-                setTimeout(() => el.remove(), 400);
-            }
-        }, 3000);
-    </script>
-@endif
-
-
-    {{-- Flash Error --}}
-    @if(session()->has('error'))
-        <div id="flash-error"
-            style="background:#dc2626;color:white;
-                padding:14px 20px;border-radius:12px;
-                margin-bottom:20px;
-                box-shadow:0 10px 20px rgba(0,0,0,.15);
-                transition:opacity .5s ease, transform .5s ease;">
-            {{ session('error') }}
+    {{-- BOOTSTRAP ALERT --}}
+    @if(session()->has('success'))
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+    @endif
 
-        <script>
-            setTimeout(() => {
-                const el = document.getElementById('flash-error');
-                if (el) {
-                    el.style.opacity = '0';
-                    el.style.transform = 'translateY(-10px)';
-                    setTimeout(() => el.remove(), 500);
-                }
-            }, 3000);
-        </script>
+    @if(session()->has('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     @endif
 
     {{-- Rental Cards --}}

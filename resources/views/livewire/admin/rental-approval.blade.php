@@ -4,13 +4,18 @@
         Rental Pending
     </h1>
 
+    {{-- BOOTSTRAP ALERT --}}
     @if (session()->has('success'))
-        <div class="bg-green-500 text-white p-2 rounded mb-4">
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
             {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    @elseif (session()->has('error'))
-        <div class="bg-red-500 text-white p-2 rounded mb-4">
+    @endif
+
+    @if (session()->has('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
             {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
@@ -67,4 +72,5 @@
             </table>
         </div>
     @endif
+
 </div>

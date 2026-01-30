@@ -20,6 +20,7 @@ class Index extends Component
     public $filterAbjad;
     public $filterTahun;
     public $categoryFilter;
+    public $filterRating; // <-- filter rating baru
 
     public $letters = [];
     public $years = [];
@@ -100,16 +101,7 @@ class Index extends Component
 
         session()->flash('success', 'Buku berhasil ditambahkan');
 
-        $this->reset([
-            'title',
-            'author',
-            'category',
-            'stock',
-            'tahun',
-            'sinopsis',
-            'image',
-            'showForm',
-        ]);
+        $this->reset([ 'title','author','category','stock','tahun','sinopsis','image','showForm']);
     }
 
     /* ================= RENT ================= */
@@ -119,7 +111,6 @@ class Index extends Component
 
         $book = Book::findOrFail($bookId);
 
-        // ✅ FIX: pakai stock asli (sinkron approve & return)
         if ($book->stock <= 0) {
             session()->flash('error', 'Stok buku sudah habis');
             return;
@@ -151,13 +142,6 @@ class Index extends Component
         ]);
 
         $book = Book::findOrFail($this->rentBookId);
-
-        //  FIX: pakai stock asli
-        if ($book->available_stock <= 0) {
-            session()->flash('error', 'Buku sedang dipinjam / diproses');
-            return;
-        }
-
 
         Rental::create([
             'user_id' => Auth::id(),
@@ -199,10 +183,7 @@ class Index extends Component
             'rating' => $this->commentRating[$bookId] ?? null,
         ]);
 
-        unset(
-            $this->commentText[$bookId],
-            $this->commentRating[$bookId]
-        );
+        unset($this->commentText[$bookId], $this->commentRating[$bookId]);
     }
 
     public function deleteComment($commentId)
@@ -225,7 +206,6 @@ class Index extends Component
     {
         Book::find($this->confirmDeleteId)?->delete();
         $this->confirmDeleteId = null;
-
         session()->flash('success', 'Buku berhasil dihapus');
     }
 
@@ -242,32 +222,64 @@ class Index extends Component
         $this->previewSinopsis = null;
     }
 
+    /* ================= ADMIN APPROVE RENTAL ================= */
+    public function approveRental($rentalId)
+    {
+        $rental = Rental::findOrFail($rentalId);
+        $book = $rental->book;
+
+        if ($book->stock <= 0) {
+            session()->flash('error', 'Buku tidak cukup stock untuk disetujui');
+            return;
+        }
+
+        $book->decrement('stock');
+
+        $rental->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
+
+        session()->flash('success', 'Rental disetujui dan stock buku dikurangi');
+        $this->emit('rentalUpdated');
+    }
+
+    /* ================= RENDER ================= */
     public function render()
     {
         $query = Book::query();
 
+        // Search
         if ($this->search) {
-            $query->where(
-                fn($q) =>
+            $query->where(fn($q) =>
                 $q->where('title', 'like', "%{$this->search}%")
-                    ->orWhere('author', 'like', "%{$this->search}%")
+                  ->orWhere('author', 'like', "%{$this->search}%")
             );
         }
 
-        if ($this->filterAbjad) {
-            $query->where('title', 'like', "{$this->filterAbjad}%");
+        // Filters
+        if ($this->filterAbjad) $query->where('title', 'like', "{$this->filterAbjad}%");
+        if ($this->filterTahun) $query->where('tahun', $this->filterTahun);
+        if ($this->categoryFilter) $query->where('category', $this->categoryFilter);
+
+        // Filter rating
+        if ($this->filterRating) {
+            $query->whereHas('comments', function($q) {
+                $q->select('book_id')
+                  ->groupBy('book_id')
+                  ->havingRaw('AVG(rating) >= ?', [$this->filterRating]);
+            });
         }
 
-        if ($this->filterTahun) {
-            $query->where('tahun', $this->filterTahun);
-        }
+        $books = $query->latest()->paginate(8);
 
-        if ($this->categoryFilter) {
-            $query->where('category', $this->categoryFilter);
+        // Tambahkan rating rata-rata untuk setiap buku
+        foreach ($books as $book) {
+            $book->avgRating = round($book->comments()->avg('rating'), 1);
         }
 
         return view('livewire.book.index', [
-            'books' => $query->latest()->paginate(8),
+            'books' => $books,
         ]);
     }
 }
