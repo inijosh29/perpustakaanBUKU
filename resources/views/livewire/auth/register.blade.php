@@ -13,44 +13,70 @@
         <form method="POST" action="{{ route('register.store') }}" class="space-y-5">
             @csrf
 
-            <flux:input
-                name="name"
-                label="Name"
-                required
-                placeholder="Full name"
-                class="bg-white text-gray-700 border border-gray-300
-                       focus:border-emerald-500 focus:ring-0"
-            />
+            {{-- Name --}}
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-700">
+                    Name
+                </label>
+                <flux:input
+                    name="name"
+                    required
+                    placeholder="Full name"
+                    class="bg-white text-gray-900 placeholder:text-gray-400
+                           border border-gray-300
+                           focus:border-emerald-500 focus:ring-0"
+                />
+            </div>
 
-            <flux:input
-                name="email"
-                label="Email address"
-                type="email"
-                required
-                placeholder="email@example.com"
-                class="bg-white text-gray-700 border border-gray-300
-                       focus:border-emerald-500 focus:ring-0"
-            />
+            {{-- Email --}}
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-700">
+                    Email address
+                </label>
+                <flux:input
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="email@example.com"
+                    class="bg-white text-gray-900 placeholder:text-gray-400
+                           border border-gray-300
+                           focus:border-emerald-500 focus:ring-0"
+                />
+            </div>
 
-            <flux:input
-                name="password"
-                label="Password"
-                type="password"
-                required
-                viewable
-                class="bg-white text-gray-700 border border-gray-300
-                       focus:border-emerald-500 focus:ring-0"
-            />
+            {{-- Password --}}
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-700">
+                    Password
+                </label>
+                <flux:input
+                    name="password"
+                    type="password"
+                    required
+                    viewable
+                    placeholder="Input Password"
+                    class="bg-white text-gray-900 placeholder:text-gray-400
+                           border border-gray-300
+                           focus:border-emerald-500 focus:ring-0"
+                />
+            </div>
 
-            <flux:input
-                name="password_confirmation"
-                label="Confirm password"
-                type="password"
-                required
-                viewable
-                class="bg-white text-gray-700 border border-gray-300
-                       focus:border-emerald-500 focus:ring-0"
-            />
+            {{-- Confirm Password --}}
+            <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-700">
+                    Confirm Password
+                </label>
+                <flux:input
+                    name="password_confirmation"
+                    type="password"
+                    required
+                    viewable
+                    placeholder="Input Confirm Password"
+                    class="bg-white text-gray-900 placeholder:text-gray-400
+                           border border-gray-300
+                           focus:border-emerald-500 focus:ring-0"
+                />
+            </div>
 
             <flux:button
                 type="submit"

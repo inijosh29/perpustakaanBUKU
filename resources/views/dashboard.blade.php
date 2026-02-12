@@ -10,7 +10,7 @@
             <div class="relative flex flex-col items-center justify-center gap-6 px-8 pt-16 pb-32 text-center">
                 <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-white md:text-5xl" 
                     style="font-family: 'WelcomeFont', sans-serif; line-height: 1.2;">
-                    Temukan dan jelajahi koleksi buku perpustakaan kami
+                    Temukan dan jelajahi koleksi buku kami
                 </h1>
                 
                 <a href="{{ route('books.index') }}"
@@ -32,9 +32,9 @@
                             <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Koleksi</p>
                             <p class="mt-1 text-3xl font-black text-gray-800">{{ \App\Models\Book::count() }}</p>
                         </div>
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
-                            📚
-                        </div>
+                        {{-- <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
+                            
+                        </div> --}}
                     </div>
                     <p class="mt-4 text-xs text-gray-500 font-medium">Data buku terdaftar</p>
                 </div>
@@ -46,9 +46,9 @@
                             <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Sedang Dipinjam</p>
                             <p class="mt-1 text-3xl font-black text-gray-800">{{ \App\Models\Rental::where('status', 'rented')->count() }}</p>
                         </div>
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
-                            🔄
-                        </div>
+                        {{-- <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
+                            
+                        </div> --}}
                     </div>
                     <p class="mt-4 text-xs text-gray-500 font-medium">Sirkulasi aktif hari ini</p>
                 </div>
@@ -60,9 +60,9 @@
                             <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Stok Tersedia</p>
                             <p class="mt-1 text-3xl font-black text-gray-800">{{ \App\Models\Book::sum('stock') }}</p>
                         </div>
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
-                            📦
-                        </div>
+                        {{-- <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-2xl shadow-inner transition-transform group-hover:rotate-12">
+                            
+                        </div> --}}
                     </div>
                     <p class="mt-4 text-xs text-gray-500 font-medium">Item siap dipinjam</p>
                 </div>
@@ -72,7 +72,7 @@
         <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-gray-200">
             <div class="border-b border-gray-50 px-8 py-6">
                 <h2 class="text-xl font-bold text-gray-800" style="font-family: 'WelcomeFont', sans-serif;">
-                    Aktivitas Rental Terbaru
+                    Aktivitas Pinjam Terbaru
                 </h2>
                 <p class="text-sm text-gray-500">Pantau pergerakan buku masuk dan keluar secara real-time</p>
             </div>

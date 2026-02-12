@@ -22,12 +22,14 @@ class Rental extends Model
         'returned_at',
         'status',
         'category',
+        'due_date',
     ];
 
     // CAST kolom tanggal ke Carbon
     protected $casts = [
         'rented_at' => 'datetime',
         'returned_at' => 'datetime',
+        'due_date' => 'datetime', // <-- ditambahkan
         'tanggal_lahir' => 'date',
     ];
 

@@ -1,88 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'App' }}</title>
 
-    {{-- BOOTSTRAP --}}
-    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
+    {{-- Head assets --}}
+    @include('partials.head')
 
-    {{-- LIVEWIRE --}}
+    {{-- Livewire --}}
     @livewireStyles
 
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f3f4f6;
+            background: #000000;
         }
 
-        .app-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .app-content {
-            flex: 1;
-            padding: 20px;
-            background: #f3f4f6;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* ==== FIX SIDEBAR LINK / BUTTON ==== */
-        .sidebar a,
-        .sidebar button,
-        .sidebar .nav-link {
-            text-decoration: none !important; /* hilangkan underline */
-            border: none !important;          /* hilangkan border */
-            outline: none !important;         /* hilangkan outline focus */
-            box-shadow: none !important;      /* hilangkan shadow focus */
-            background: none !important;      /* hilangkan background default */
-            color: inherit !important;        /* jaga warna teks */
-        }
-
-        .sidebar a:hover,
-        .sidebar button:hover,
-        .sidebar a:focus,
-        .sidebar button:focus,
-        .sidebar a:active,
-        .sidebar button:active,
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link:focus,
-        .sidebar .nav-link:active {
+        /* Flux navlist styling (optional) */
+        flux\:navlist .nav-item,
+        flux\:navlist .nav-link {
+            border: none !important;
             text-decoration: none !important;
-            border: none !important;
-            outline: none !important;
-            box-shadow: none !important;
-            background: none !important;
-            color: inherit !important;
         }
 
-        /* Optional: jika sidebar pakai list-group */
-        .sidebar .list-group-item {
-            border: none !important;
-            background: none !important;
+        flux\:navlist .nav-item.current .nav-link {
+            background-color: #4ade80 !important;
+            color: #000 !important;
         }
     </style>
 </head>
-<body>
 
-<div class="app-wrapper">
-    {{-- SIDEBAR --}}
-    <x-layouts.app.sidebar :title="$title ?? null" />
+<body class="min-h-screen bg-white dark:bg-zinc-800">
 
-    {{-- CONTENT --}}
-    <div class="app-content">
+    {{-- ================= TOP NAVBAR ================= --}}
+    @include('components.layouts.app.header')
+
+    {{-- ================= PAGE CONTENT ================= --}}
+    <main class="min-h-[calc(100vh-64px)] bg-gray-100 p-6">
         {{ $slot }}
-    </div>
-</div>
+    </main>
 
-{{-- BOOTSTRAP JS --}}
-{{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> --}}
-
-{{-- LIVEWIRE --}}
-@livewireScripts
+    {{-- Livewire & Flux --}}
+    @livewireScripts
+    @fluxScripts
 
 </body>
 </html>

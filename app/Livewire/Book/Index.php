@@ -14,6 +14,7 @@ class Index extends Component
     use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'tailwind';
+    protected $listeners = ['rentalUpdated' => '$refresh'];
 
     /* ================= STATE ================= */
     public $search;
@@ -73,36 +74,43 @@ class Index extends Component
         $this->showForm = !$this->showForm;
     }
 
-    public function createBook()
-    {
-        $this->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'category' => 'required|string',
-            'stock' => 'required|integer|min:0',
-            'tahun' => 'required|integer',
-            'sinopsis' => 'nullable|string|max:200',
-            'image' => 'nullable|image|max:2048',
-        ]);
+   public function createBook()
+{
+    $this->validate([
+        'title' => 'required|string|max:255',
+        'author' => 'required|string|max:255',
+        'category' => 'required|string',
+        'stock' => 'required|integer|min:0',
+        'tahun' => 'required|integer',
+        'sinopsis' => 'nullable|string',
+        'image' => 'nullable|image|max:10240', // 10MB
+    ]);
 
-        $path = $this->image
-            ? $this->image->store('books', 'public')
-            : null;
+    $path = 'books/default.png'; // default jika tidak ada gambar
 
-        Book::create([
-            'title' => $this->title,
-            'author' => $this->author,
-            'category' => $this->category,
-            'stock' => $this->stock,
-            'tahun' => $this->tahun,
-            'sinopsis' => $this->sinopsis,
-            'image' => $path,
-        ]);
-
-        session()->flash('success', 'Buku berhasil ditambahkan');
-
-        $this->reset([ 'title','author','category','stock','tahun','sinopsis','image','showForm']);
+    if ($this->image) {
+        try {
+            $path = $this->image->store('books', 'public');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal upload gambar: ' . $e->getMessage());
+        }
     }
+
+    Book::create([
+        'title' => $this->title,
+        'author' => $this->author,
+        'category' => $this->category,
+        'stock' => $this->stock,
+        'tahun' => $this->tahun,
+        'sinopsis' => $this->sinopsis,
+        'image' => $path,
+    ]);
+
+    session()->flash('success', 'Buku berhasil ditambahkan');
+    
+    $this->reset(['title','author','category','stock','tahun','sinopsis','image','showForm']);
+    $this->dispatch('$refresh'); // Livewire 3 syntax
+}
 
     /* ================= RENT ================= */
     public function openRentForm($bookId)
@@ -127,7 +135,6 @@ class Index extends Component
             'rentBookId',
             'nama',
             'tempat_lahir',
-            'tanggal_lahir',
             'alamat',
         ]);
     }
@@ -136,8 +143,7 @@ class Index extends Component
     {
         $this->validate([
             'nama' => 'required|string|max:100',
-            'tempat_lahir' => 'required|string|max:100',
-            'tanggal_lahir' => 'required|date',
+            'tempat_lahir' => 'required|string|max:13',
             'alamat' => 'required|string|max:255',
         ]);
 
@@ -148,7 +154,6 @@ class Index extends Component
             'book_id' => $book->id,
             'nama' => $this->nama,
             'tempat_lahir' => $this->tempat_lahir,
-            'tanggal_lahir' => $this->tanggal_lahir,
             'alamat' => $this->alamat,
             'rented_at' => now(),
             'status' => 'pending',
@@ -230,18 +235,20 @@ class Index extends Component
 
         if ($book->stock <= 0) {
             session()->flash('error', 'Buku tidak cukup stock untuk disetujui');
-            return;
+            return; 
         }
 
         $book->decrement('stock');
 
-        $rental->update([
-            'status' => 'approved',
-            'approved_at' => now(),
-        ]);
+        // ===================  ===================
+       $rental->update([
+    'status' => 'approved',
+    'rented_at' => now(), // Biasanya menggunakan rented_at untuk mencatat kapan buku mulai dibawa
+]);
+        // ================================================================
 
         session()->flash('success', 'Rental disetujui dan stock buku dikurangi');
-        $this->emit('rentalUpdated');
+       $this->dispatch('rentalUpdated');
     }
 
     /* ================= RENDER ================= */

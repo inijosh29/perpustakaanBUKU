@@ -20,6 +20,7 @@
         <form method="POST" action="{{ route('login.store') }}" class="space-y-5">
             @csrf
 
+            <!-- EMAIL -->
             <flux:input
                 name="email"
                 label="Email address"
@@ -27,10 +28,18 @@
                 required
                 autofocus
                 placeholder="email@gmail.com"
-                class="bg-white text-gray-700 border border-gray-300
-                       focus:border-emerald-500 focus:ring-0"
+                class="
+                    bg-white
+                    text-gray-900
+                    placeholder:text-gray-400
+                    border border-gray-300
+                    focus:border-emerald-500
+                    focus:ring-0
+                    opacity-100
+                "
             />
 
+            <!-- PASSWORD -->
             <div class="relative">
                 <flux:input
                     name="password"
@@ -39,8 +48,15 @@
                     required
                     placeholder="Password"
                     viewable
-                    class="bg-white text-gray-700 border border-gray-300
-                           focus:border-emerald-500 focus:ring-0"
+                    class="
+                        bg-white
+                        text-gray-900
+                        placeholder:text-gray-400
+                        border border-gray-300
+                        focus:border-emerald-500
+                        focus:ring-0
+                        opacity-100
+                    "
                 />
 
                 <flux:link
@@ -52,12 +68,14 @@
                 </flux:link>
             </div>
 
+            <!-- REMEMBER -->
             <flux:checkbox
                 name="remember"
                 label="Remember me"
-                class="text-gray-600"
+                class="text-gray-700"
             />
 
+            <!-- BUTTON -->
             <flux:button
                 type="submit"
                 class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl"
@@ -66,6 +84,7 @@
             </flux:button>
         </form>
 
+        <!-- REGISTER -->
         <div class="mt-6 text-center text-sm text-gray-500">
             Belum punya akun?
             <flux:link
@@ -76,5 +95,6 @@
                 Daftar
             </flux:link>
         </div>
+
     </div>
 </x-layouts.auth>

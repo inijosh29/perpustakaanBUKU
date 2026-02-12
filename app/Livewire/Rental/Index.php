@@ -5,6 +5,7 @@ namespace App\Livewire\Rental;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Rental;
+use App\Models\Notification; // <-- add Notification model
 use Illuminate\Support\Facades\Auth;
 
 class Index extends Component
@@ -23,13 +24,13 @@ class Index extends Component
             return;
         }
 
-        // ✅ hanya boleh kembalikan jika SUDAH DISETUJUI
+        //  hanya boleh kembalikan jika SUDAH DISETUJUI
         if ($rental->status !== 'approved') {
             session()->flash('error', 'Buku tidak bisa dikembalikan');
             return;
         }
 
-        // ✅ kembalikan stock buku
+        //  kembalikan stock buku
         $rental->book->increment('stock');
 
         // update rental
@@ -37,6 +38,14 @@ class Index extends Component
             'status' => 'returned',
             'returned_at' => now(),
         ]);
+
+        // Hapus notifikasi yang terkait dengan rental ini sehingga notifikasi hilang ketika buku dikembalikan
+        Notification::where('rental_id', $rental->id)
+            ->where('user_id', Auth::id())
+            ->delete();
+
+        // Beri tahu komponen notifikasi untuk menyegarkan (badge + drawer)
+        $this->dispatch('notification-updated');
 
         session()->flash('success', 'Buku berhasil dikembalikan');
     }

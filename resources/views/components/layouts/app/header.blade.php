@@ -1,124 +1,102 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-    <head>
-        @include('partials.head')
-    </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:header container class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+<header
+    class="sticky top-0 z-40 w-full border-b border-slate-100 bg-white/90 backdrop-blur-md dark:bg-gray-800 dark:border-gray-700">
+    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
 
-            <a href="{{ route('dashboard') }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0" wire:navigate>
-                <x-app-logo />
+        {{-- LEFT: LOGO & NAV --}}
+        <div class="flex items-center gap-10">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group" wire:navigate>
+                <x-app-logo class="w-10 h-10 text-emerald-600 transition-transform group-hover:scale-110" />
+                <div class="flex flex-col leading-none">
+                    <span class="text-xl font-black tracking-tight text-slate-800 dark:text-white">
+                        Pin<span class="text-emerald-500">Book</span>
+                    </span>
+                    <span class="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-400">
+                        Management System
+                    </span>
+                </div>
             </a>
 
-            <flux:navbar class="-mb-px max-lg:hidden">
-                <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
-                </flux:navbar.item>
-            </flux:navbar>
+            <nav class="hidden md:flex">
+                <flux:navlist class="flex flex-row items-center gap-1">
+                    <flux:navlist.item icon="home" :href="route('dashboard')"
+                        :current="request()->routeIs('dashboard')" wire:navigate>
+                        Dashboard
+                    </flux:navlist.item>
 
-            <flux:spacer />
+                    <flux:navlist.item icon="document-text" href="{{ url('/books') }}"
+                        :current="request()->is('books*')" wire:navigate>
+                        Books
+                    </flux:navlist.item>
 
-            <flux:navbar class="me-1.5 space-x-0.5 rtl:space-x-reverse py-0!">
-                <flux:tooltip :content="__('Search')" position="bottom">
-                    <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#" :label="__('Search')" />
-                </flux:tooltip>
-                <flux:tooltip :content="__('Repository')" position="bottom">
-                    <flux:navbar.item
-                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="folder-git-2"
-                        href="https://github.com/laravel/livewire-starter-kit"
-                        target="_blank"
-                        :label="__('Repository')"
-                    />
-                </flux:tooltip>
-                <flux:tooltip :content="__('Documentation')" position="bottom">
-                    <flux:navbar.item
-                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="book-open-text"
-                        href="https://laravel.com/docs/starter-kits#livewire"
-                        target="_blank"
-                        label="Documentation"
-                    />
-                </flux:tooltip>
-            </flux:navbar>
+                    <flux:navlist.item icon="clipboard-document-list" href="{{ url('/rentals') }}"
+                        :current="request()->is('rentals*')" wire:navigate>
+                        Pinjam Buku
+                    </flux:navlist.item>
 
-            <!-- Desktop User Menu -->
-            <flux:dropdown position="top" align="end">
-                <flux:profile
-                    class="cursor-pointer"
-                    :initials="auth()->user()->initials()"
-                />
+                    {{-- ADMIN: APPROVE RENTALS --}}
+                    @if (auth()->user()->role === 'admin')
+                        <flux:navlist.item icon="check-circle" :href="route('admin.rentals')"
+                            :current="request()->is('admin/rentals*')" wire:navigate
+                            class="!text-emerald-600 font-bold">
+                            Approve Pinjam
+                        </flux:navlist.item>
+                    @endif
+                </flux:navlist>
+            </nav>
+        </div>
 
-                <flux:menu>
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                                    >
-                                        {{ auth()->user()->initials() }}
-                                    </span>
-                                </span>
+        {{-- RIGHT: NOTIF & PROFILE --}}
+        <div class="flex items-center gap-4">
 
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
-                                </div>
-                            </div>
+            {{-- NOTIFICATIONS --}}
+            @if (auth()->user()->role === 'user')
+                <div class="flex items-center">
+                    {{-- Ganti bagian button notification di header menjadi ini --}}
+                    <button x-data @click="$dispatch('open-drawer')" type="button"
+                        class="group relative p-2 text-slate-500 hover:text-emerald-600 transition-all rounded-full hover:bg-emerald-50 dark:hover:bg-gray-800 focus:outline-none">
+
+                        <flux:icon.bell class="w-6 h-6 transition-transform group-hover:rotate-12" />
+
+                        <div class="absolute -top-0.5 -right-0.5">
+                            <livewire:notification.badge />
                         </div>
-                    </flux:menu.radio.group>
+                    </button>
 
-                    <flux:menu.separator />
+                    {{-- Komponen Drawer (Hidden by default) --}}
+                    <livewire:notification.index />
+                </div>
+            @endif
 
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
-                    </flux:menu.radio.group>
+            {{-- Separator tipis --}}
+            <div class="h-6 w-[1px] bg-slate-200 dark:bg-gray-700"></div>
+
+            {{-- PROFILE DROPDOWN --}}
+            <flux:dropdown position="bottom" align="end">
+                {{-- Trigger --}}
+                <div
+                    class="flex items-center gap-3 px-3 py-1.5 rounded-full border border-slate-200 dark:border-gray-700 hover:border-emerald-400 cursor-pointer bg-white dark:bg-gray-900 shadow-sm transition-all active:scale-95">
+                    <flux:profile :name="auth()->user()->name" :initials="auth()->user()->initials()"
+                        icon:trailing="chevrons-up-down" />
+                </div>
+
+                {{-- Menu Items --}}
+                <flux:menu class="w-[220px] shadow-xl border border-slate-200/50">
+                    <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
+                        Settings
+                    </flux:menu.item>
 
                     <flux:menu.separator />
 
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                         @csrf
-                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
-                            {{ __('Log Out') }}
+                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                            class="w-full text-left font-bold text-red-600 hover:!text-red-700 hover:!bg-red-50 dark:hover:!bg-red-950/20">
+                            Log Out
                         </flux:menu.item>
                     </form>
                 </flux:menu>
             </flux:dropdown>
-        </flux:header>
+        </div>
 
-        <!-- Mobile Menu -->
-        <flux:sidebar stashable sticky class="lg:hidden border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
-
-            <a href="{{ route('dashboard') }}" class="ms-1 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-                <x-app-logo />
-            </a>
-
-            <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Platform')">
-                    <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                      {{ __('Dashboard') }}
-                    </flux:navlist.item>
-                </flux:navlist.group>
-            </flux:navlist>
-
-            <flux:spacer />
-
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:navlist.item>
-
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:navlist.item>
-            </flux:navlist>
-        </flux:sidebar>
-
-        {{ $slot }}
-
-        @fluxScripts
-    </body>
-</html>
+    </div>
+</header>

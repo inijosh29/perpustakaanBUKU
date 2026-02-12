@@ -12,6 +12,7 @@ use App\Livewire\Settings\TwoFactor;
 use App\Livewire\Book\Index as BookIndex;
 use App\Livewire\Rental\Index as RentalIndex;
 use App\Livewire\Admin\RentalApproval;
+use App\Livewire\Notification\Index as NotificationIndex;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,10 @@ Route::middleware(['auth'])->group(function () {
     // ================= RENTAL (USER) =================
     Route::get('/rentals', RentalIndex::class)
         ->name('rentals');
+
+    // ================= NOTIFICATION =================
+    Route::get('/notifications', NotificationIndex::class)
+        ->name('notifications.index');
 });
 
 /*
@@ -79,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/rentals', \App\Livewire\Admin\RentalApproval::class)
+
+    Route::get('/admin/rentals', RentalApproval::class)
         ->name('admin.rentals');
+
 });

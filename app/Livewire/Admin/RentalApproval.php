@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use App\Models\Rental;
+use Carbon\Carbon;
 
 class RentalApproval extends Component
 {
@@ -20,8 +21,12 @@ class RentalApproval extends Component
             return;
         }
 
-        // update status rental
-        $rental->update(['status' => 'approved']);
+        // SET WAKTU RENTAL & BATAS WAKTU
+        $rental->update([
+            'status'    => 'approved',
+            'rented_at' => now(),
+            'due_date'  => now()->addMinutes(1), // ⏰ TEST 3 MENIT
+        ]);
 
         // kurangi stock buku
         $rental->book->decrement('stock');
@@ -35,7 +40,9 @@ class RentalApproval extends Component
 
         if ($rental->status !== 'pending') return;
 
-        $rental->update(['status' => 'rejected']);
+        $rental->update([
+            'status' => 'rejected',
+        ]);
 
         session()->flash('success', "Rental ID {$rental->id} ditolak.");
     }
