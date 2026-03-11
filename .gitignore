@@ -21,3 +21,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+win32-x64-template-XhbjYC/
+*.exe
